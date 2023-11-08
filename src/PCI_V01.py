@@ -109,7 +109,7 @@ def getVersionContenidoJson (path,json,read):
         text1=codecs.open(f'{path}','r',encoding='latin-1')
         for linea in text1:
             #encuentra cadena de versiones(cuerpo)
-            if(re.findall('\|\|\s*[\d]\s*.*|#--\s*[\d]\s*.*|\|\s*[\d]\s*.*|--\s*\d+[\s*].*',linea)):#las lineas con las versiones
+            if(re.findall('\|\|\s*[\d]\s*.*|#--\s*[\d]\s*.*|\|\s*[\d]\s*.*|--\s*\d+[\s*].*|\d{2}/\d{2}/\d{2,4}\s\w+',linea)):#las lineas con las versiones
                 versiones.append(linea.replace("--","").replace("#","").replace("|",""))
             #encuentra nombre del Job en el texto
             if re.findall('.(job|JOB).*:.*@\w*',linea.upper()):
@@ -152,7 +152,7 @@ def getVersionContenidoJson (path,json,read):
                 "archivo":getFile(f'{path}','fullname'),
                 "name":getFile(f'{path}','name'),
                 "version": rowUltimaVersion.split()[0].strip() if len(rowUltimaVersion)>0 else '',
-                "job": job,
+                "job": job.replace('-','').replace('|',''),
                 "tecnologia": getFile(f'{path}','ext') ,
                 "fecha": getDetailFile(f'{path}','modify') ,
                 "fechaDev":fechadev,
@@ -218,7 +218,7 @@ def resorce_path(relative_path):
     try:
         base_path=sys._MEIPASS
     except Exception:
-        base_path=os.path.abspath(".")
+        base_path=os.path.abspath("..")
     return os.path.join(base_path,relative_path)
 def f_proceso (path,extProcess,inputReadXlsx,output):
     fileLog='.log'
@@ -337,9 +337,9 @@ class Aplicacion (tk.Frame):
             msg="SUCCESS!!\n"
             self.txaMsgoutput.insert('1.0',msg)
             global listLog
-            for val in listLog:
+            for val in set(listLog):
                 self.txaMsgoutput.insert('1.0',f"{val}\n")
-            self.txaMsgoutput.insert('1.0',f"Nombre Archivo: {self.txtFileOutput.get()}\n")
+            self.txaMsgoutput.insert('1.0',f"Nombre Archivo: {self.txtFileOutput.get()}.xlsx\n")
             self.txaMsgoutput.insert('1.0',f"Ruta Salida: {self.txtWorkPath.get()}\n")
             self.txaMsgoutput.insert('1.0',"---------------------\n")
             self.txaMsgoutput.insert('1.0',"Detalle de Ejecucion:\n")
@@ -359,7 +359,7 @@ class Aplicacion (tk.Frame):
 root=tk.Tk()
 root.title("Proy PCI")
 root.geometry("570x350")
-path_img=resorce_path(r"..\img\bcp.png")
+path_img=resorce_path(r"img\bcp.png")
 icono=tk.PhotoImage(file=path_img)
 root.iconphoto(True, icono)
 app=Aplicacion(master=root)
